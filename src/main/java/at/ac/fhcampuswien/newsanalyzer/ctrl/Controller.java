@@ -8,7 +8,11 @@ import at.ac.fhcampuswien.newsapi.beans.Article;
 import at.ac.fhcampuswien.newsapi.beans.NewsResponse;
 import at.ac.fhcampuswien.newsapi.enums.Country;
 import at.ac.fhcampuswien.newsapi.enums.SortBy;
+import jdk.javadoc.internal.doclets.toolkit.util.Comparators;
+
 import java.util.*;
+import java.util.stream.Collectors;
+
 import static at.ac.fhcampuswien.newsapi.enums.Endpoint.TOP_HEADLINES;
 
 public class Controller {
@@ -47,7 +51,7 @@ public class Controller {
 			System.out.println("\nNumber of articles for your search is " + articles.size());
 
 //Count of most providers
-			Map<String, Integer> map = new HashMap<>();
+			/*Map<String, Integer> map = new HashMap<>();
 
 			for (Article a : articles) {
 				Integer i = map.get(a.getSource().getName());
@@ -62,9 +66,25 @@ public class Controller {
 			}
 
 			System.out.println("Provider \"" + max.getKey() + "\" has the most articles!");
+*/
+			String prov = articles.stream()
+					.collect(Collectors.groupingBy(article -> article.getSource().getName(), Collectors.counting()))
+                    .entrySet().stream()
+					.max(Comparator.comparingInt(t -> t.getValue().intValue()))
+					.get()
+					.getKey();
+
+			if (prov != null)
+				System.out.println("Provider delivers the most articles: " + prov);
+			else
+				System.out.println("There is no provider");
+
+
+
+
 
 			//Shortest author's  name
-			int min = Integer.MIN_VALUE;
+			/*int min = Integer.MIN_VALUE;
 			String shortestName = "";
 
 			for (Article a : articles) {
@@ -76,9 +96,23 @@ public class Controller {
 				}
 			}
 			System.out.println("The shortest author's name is " + shortestName);
+*/
+			String authorsName = articles.stream()
+					.filter(article -> Objects.nonNull(article.getAuthor()))
+					.min(Comparator.comparingInt(article -> article.getAuthor().length()))
+					.get()
+					.getAuthor();
+
+			if (authorsName != null)
+				System.out.println("The shortest author's name is \" + authorsName");
+			else
+				System.out.println("There is no authorsName");
+
+
 
 			//Sort articles by longest title by alphabet
-for (int i = 0; i < articles.size(); i++) {
+
+/*for (int i = 0; i < articles.size(); i++) {
 	for (int j = 0; j < articles.size() -i - 1; j++) {
 		if (articles.get(i).getTitle().length() < articles.get(j + 1).getTitle().length())
 			Collections.swap(articles, i, j + 1);
@@ -91,6 +125,17 @@ for (int i = 0; i < articles.size() -1; i++) {
 }
 
 System.out.println();
+
+*/
+			List<Article> sortArticles = articles.stream()
+					.sorted(Comparator.comparingInt(article -> article.getTitle().length()))
+					.sorted(Comparator.comparing(Article::getTitle))
+					.collect(Collectors.toList());
+
+			if (sortArticles != null)
+				System.out.println("There is the longest title!");
+			else
+				System.out.println("Nothing to show");
 
 
 		} catch (NewsApiException e) {

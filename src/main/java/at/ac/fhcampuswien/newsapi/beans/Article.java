@@ -206,7 +206,7 @@ public class Article {
     @Override
     public String toString() {
         return "Article{" +
-                "source=" + source +
+                ", source='" + source +
                 ", author='" + author + '\'' +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
