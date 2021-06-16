@@ -1,5 +1,5 @@
 package at.ac.fhcampuswien.newsapi.beans;
-
+import java.lang.*;
 
 import com.fasterxml.jackson.annotation.*;
 

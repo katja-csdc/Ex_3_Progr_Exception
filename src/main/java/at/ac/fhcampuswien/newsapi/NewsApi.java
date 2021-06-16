@@ -18,10 +18,10 @@ public class NewsApi {
 
     /**
      * For detailed documentation of the API see: https://newsapi.org/docs
-     *
+     * <p>
      * %s is a filler for endpoint like top-headlines, everything (see /newsapi/enums/Endpoint)
      * q=%s is a filler for specified query
-     *
+     * <p>
      * Example URL: https://newsapi.org/v2/top-headlines?country=us&apiKey=myKey
      */
     public static final String NEWS_API_URL = "http://newsapi.org/v2/%s?q=%s&apiKey=%s";
@@ -120,65 +120,69 @@ public class NewsApi {
         URL obj = null;
         try {
             obj = new URL(url);
+
+            HttpURLConnection con;
+            StringBuilder response = new StringBuilder();
+            try {
+                con = (HttpURLConnection) obj.openConnection();
+                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+            } catch (IOException e) {
+                // TODO improve ErrorHandling
+                System.out.println("No input stream!");
+                return null;
+            }
+            return response.toString();
         } catch (MalformedURLException e) {
             // TODO improve ErrorHandling
+            System.out.println("URL is not formed correctly!");
             e.printStackTrace();
+            return null;
         }
-        HttpURLConnection con;
-        StringBuilder response = new StringBuilder();
-        try {
-            con = (HttpURLConnection) obj.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-        } catch (IOException e) {
-            // TODO improve ErrorHandling
-            System.out.println("Error "+e.getMessage());
-        }
-        return response.toString();
     }
 
     protected String buildURL() {
         // TODO ErrorHandling
-        String urlbase = String.format(NEWS_API_URL,getEndpoint().getValue(),getQ(),getApiKey());
+        String urlbase = String.format(NEWS_API_URL, getEndpoint().getValue(), getQ(), getApiKey());
         StringBuilder sb = new StringBuilder(urlbase);
 
         System.out.println(urlbase);
 
-        if(getFrom() != null){
+        if (getFrom() != null) {
             sb.append(DELIMITER).append("from=").append(getFrom());
         }
-        if(getTo() != null){
+        if (getTo() != null) {
             sb.append(DELIMITER).append("to=").append(getTo());
         }
-        if(getPage() != null){
+        if (getPage() != null) {
             sb.append(DELIMITER).append("page=").append(getPage());
         }
-        if(getPageSize() != null){
+        if (getPageSize() != null) {
             sb.append(DELIMITER).append("pageSize=").append(getPageSize());
         }
-        if(getLanguage() != null){
+        if (getLanguage() != null) {
             sb.append(DELIMITER).append("language=").append(getLanguage());
         }
-        if(getSourceCountry() != null){
+        if (getSourceCountry() != null) {
             sb.append(DELIMITER).append("country=").append(getSourceCountry());
         }
-        if(getSourceCategory() != null){
+        if (getSourceCategory() != null) {
             sb.append(DELIMITER).append("category=").append(getSourceCategory());
         }
-        if(getDomains() != null){
+        if (getDomains() != null) {
             sb.append(DELIMITER).append("domains=").append(getDomains());
         }
-        if(getExcludeDomains() != null){
+        if (getExcludeDomains() != null) {
             sb.append(DELIMITER).append("excludeDomains=").append(getExcludeDomains());
         }
-        if(getqInTitle() != null){
+        if (getqInTitle() != null) {
             sb.append(DELIMITER).append("qInTitle=").append(getqInTitle());
         }
-        if(getSortBy() != null){
+        if (getSortBy() != null) {
             sb.append(DELIMITER).append("sortBy=").append(getSortBy());
         }
         return sb.toString();
@@ -187,20 +191,29 @@ public class NewsApi {
     public NewsResponse getNews() {
         NewsResponse newsReponse = null;
         String jsonResponse = requestData();
-        if(jsonResponse != null && !jsonResponse.isEmpty()){
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                newsReponse = objectMapper.readValue(jsonResponse, NewsResponse.class);
-                if(!"ok".equals(newsReponse.getStatus())){
-                    System.out.println("Error: "+newsReponse.getStatus());
+        try {
+            if (jsonResponse != null && !jsonResponse.isEmpty()) {
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    newsReponse = objectMapper.readValue(jsonResponse, NewsResponse.class);
+                    if (!"ok".equals(newsReponse.getStatus())) {
+                        throw new NewsApiException("Response status is not OK!");
+                    }
+                } catch (JsonProcessingException e) {
+                    System.out.println("Error: " + e.getMessage());
                 }
-            } catch (JsonProcessingException e) {
-                System.out.println("Error: "+e.getMessage());
+            }else {
+                throw new NewsApiException("JSON Response is NULL");
             }
         }
-        //TODO improve Errorhandling
-        return newsReponse;
-    }
-}
+        catch (NewsApiException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+            //TODO improve Error handling
+            return newsReponse;
+        }
 
+}

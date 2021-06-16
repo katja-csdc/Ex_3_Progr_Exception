@@ -12,30 +12,43 @@ public class UserInterface
 	private Controller ctrl = new Controller();
 
 	public void getDataFromCtrl1(){
-		System.out.println("ABC");
+		System.out.println("Looking for articles with word \"Corona\"");
 
-		ctrl.process();
+		ctrl.process("corona");
 	}
 
 	public void getDataFromCtrl2(){
 		// TODO implement me
+		System.out.println("Looking for articles with word \"Wirtschaft\"");
+
+		ctrl.process("Wirtschaft");
 	}
 
 	public void getDataFromCtrl3(){
 		// TODO implement me
+		System.out.println("Looking for articles with word \"Krieg\"");
+
+		ctrl.process("Krieg");
 	}
 	
 	public void getDataForCustomInput() {
 		// TODO implement me
+		System.out.println("Enter the input you want to find: ");
+		String newCustomLine = readLine();
+
+		System.out.println("Looking for articles with word \"" + newCustomLine + "\"");
+
+		ctrl.process(newCustomLine);
+
 	}
 
 
 	public void start() {
 		Menu<Runnable> menu = new Menu<>("User Interface");
 		menu.setTitle("Wählen Sie aus:");
-		menu.insert("a", "Choice ABC", this::getDataFromCtrl1);
-		menu.insert("b", "Choice DEF", this::getDataFromCtrl2);
-		menu.insert("c", "Choice 3", this::getDataFromCtrl3);
+		menu.insert("a", "Choice Corona", this::getDataFromCtrl1);
+		menu.insert("b", "Choice Wirtschaft", this::getDataFromCtrl2);
+		menu.insert("c", "Choice Krieg", this::getDataFromCtrl3);
 		menu.insert("d", "Choice User Input:",this::getDataForCustomInput);
 		menu.insert("q", "Quit", null);
 		Runnable choice;
